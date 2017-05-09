@@ -1,0 +1,53 @@
+version: '2'
+services:
+  ec2:
+    image: amazonlinux
+    command: tail -f /dev/null
+    container_name: ec2
+
+  php7:
+    image: php:7.0-cli
+    expose:
+      - "80"
+    ports:
+      - "80:80"
+    # volumes_from:
+    #   - app
+    volumes:
+      # - ./php7.0:/usr/share/php/html
+      - ./php7.0:/docker/test/php7.0/html
+    working_dir: /docker/test/php7.0/html
+    command: php -S 0.0.0.0:80
+    links:
+      - nginx
+      - mysql
+    container_name: php7
+
+  mysql:
+    image: mysql:5.6
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      # MYSQL_DATABASE: mysql_database
+      # MYSQL_USER: mysql_user
+      # MYSQL_PASSWORD: mysql_pw
+    ports:
+      - "3333:3306"
+    # volumes_from:
+    #   - data
+    # volumes:
+    #   - ../application/initial.sql:/docker-entrypoint-initdb.d/initial.sql
+    volumes:
+      - ./mysql:/var/lib/mysql
+    container_name: mysql
+
+  nginx:
+    image: nginx
+    ports:
+      - "8080:8080"
+      - "443:443"
+    volumes:
+      - ./nginx:/var/www/html
+    # links:
+    #   - php7
+    container_name: nginx
+
